@@ -13,6 +13,11 @@ const replySchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    discussion: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Discussion",
+        required: true
+    }
   },
   {
     timestamps: true,
