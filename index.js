@@ -1,6 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const questionRoutes = require('./routes/questionRoutes')
+
 const app = express();
+
+
+app.use(express.json());
+app.use('/api/questions', questionRoutes)
 
 mongoose
   .connect("mongodb://localhost/forumly")
