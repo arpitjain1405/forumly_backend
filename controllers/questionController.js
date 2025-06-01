@@ -68,6 +68,7 @@ exports.increaseQuestionViews = async (req, res) => {
     },
     {
       timestamps: false,
+      new: true
     }
   );
   res.send(question);

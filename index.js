@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const questionRoutes = require('./routes/questionRoutes')
-
+const replyRoutes = require('./routes/replyRoutes')
 const app = express();
 
 

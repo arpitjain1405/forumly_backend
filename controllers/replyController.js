@@ -1,7 +1,7 @@
 const { validateReply, Reply } = require("../models/Reply");
 
 exports.getReplyById = async (req, res) => {
-  const reply = await Reply.find(req.params.id);
+  const reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No Reply exist");
   res.send(reply);
 };
@@ -13,13 +13,13 @@ exports.createReply = async (req, res) => {
   const reply = await Reply.create({
     content: req.body.content,
     owner: req.body.owner,
-    discussion: req.body.discussionId,
+    discussion: req.body.discussion,
   });
   res.send(reply);
 };
 
 exports.updateReply = async (req, res) => {
-  let reply = await Reply.find(req.params.id);
+  let reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No reply exist");
 
   const { error } = validateReply(req.body);
@@ -36,7 +36,7 @@ exports.updateReply = async (req, res) => {
 };
 
 exports.deleteReply = async (req, res) => {
-  let reply = await Reply.find(req.params.id);
+  let reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No reply exist");
 
   reply = await Reply.findByIdAndDelete(req.params.id);
@@ -44,7 +44,7 @@ exports.deleteReply = async (req, res) => {
 };
 
 exports.increaseReplyLikes = async (req, res) => {
-  let reply = await Reply.find(req.params.id);
+  let reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No reply exist");
 
   reply = await Reply.findByIdAndUpdate(
@@ -61,7 +61,7 @@ exports.increaseReplyLikes = async (req, res) => {
 };
 
 exports.decreaseReplyLikes = async (req, res) => {
-  let reply = await Reply.find(req.params.id);
+  let reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No reply exist");
 
   if (reply.likes > 0) {

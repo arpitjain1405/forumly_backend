@@ -49,6 +49,5 @@ const replySchema = new mongoose.Schema(
   }
 );
 
-const Reply = mongoose.model("Reply", replySchema);
+exports.Reply = mongoose.model("Reply", replySchema);
 
-module.exports = Reply;
