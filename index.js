@@ -7,6 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/api/questions', questionRoutes)
+app.use('/api/replies', replyRoutes)
 
 mongoose
   .connect("mongodb://localhost/forumly")
