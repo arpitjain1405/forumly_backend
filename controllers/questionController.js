@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-const Question = require("../models/Question");
+const { Question, validateQuestion } = require("../models/Question");
 
 exports.getAllQuestions = async (req, res) => {
   const { sort, order } = req.query;
@@ -13,13 +12,13 @@ exports.getAllQuestions = async (req, res) => {
     sortFilter.likes = order === "desc" ? -1 : 1;
   }
 
-  const questions = Question.find().sort(sortFilter);
+  const questions = await Question.find().sort(sortFilter);
   if (!questions) return res.status(404).send("No question exist");
   res.send(questions);
 };
 
 exports.getQuestionById = async (req, res) => {
-  const question = Question.findById(req.params.id);
+  const question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
   res.send(question);
 };
@@ -28,7 +27,7 @@ exports.createQuestion = async (req, res) => {
   const { error } = validateQuestion(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const question = Question.create({
+  const question = await Question.create({
     title: req.body.title,
     content: req.body.content,
     owner: req.body.owner,
@@ -38,29 +37,31 @@ exports.createQuestion = async (req, res) => {
 };
 
 exports.updateQuestion = async (req, res) => {
-  let question = Question.findById(req.params.id);
+  let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
   const { error } = validateQuestion(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  question = Question.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  question = await Question.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   res.send(question);
 };
 
 exports.deleteQuestion = async (req, res) => {
-  let question = Question.findById(req.params.id);
+  let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
-  question = Question.findByIdAndDelete(req.params.id);
+  question = await Question.findByIdAndDelete(req.params.id);
   res.send(question);
 };
 
 exports.increaseQuestionViews = async (req, res) => {
-  let question = Question.findById(req.params.id);
+  let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
-  question = Question.findByIdAndUpdate(
+  question = await Question.findByIdAndUpdate(
     req.params.id,
     {
       $inc: { views: 1 },
@@ -69,36 +70,44 @@ exports.increaseQuestionViews = async (req, res) => {
       timestamps: false,
     }
   );
+  res.send(question);
 };
 
 exports.increaseQuestionLikes = async (req, res) => {
-  let question = Question.findById(req.params.id);
+  let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
-  question = Question.findByIdAndUpdate(
+  question = await Question.findByIdAndUpdate(
     req.params.id,
     {
       $inc: { likes: 1 },
     },
     {
       timestamps: false,
+      new: true,
     }
   );
+  res.send(question);
 };
 
 exports.decreaseQuestionLikes = async (req, res) => {
-  let question = Question.findById(req.params.id);
+  let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
   if (parseInt(question.likes) > 0) {
-    question = Question.findByIdAndUpdate(
+    question = await Question.findByIdAndUpdate(
       req.params.id,
       {
         $inc: { likes: -1 },
       },
       {
         timestamps: false,
+        new: true,
       }
     );
+    res.send(question);
   }
+  return res
+    .status(200)
+    .json({ message: "Already at 0 likes. Cannot dislike further." });
 };
