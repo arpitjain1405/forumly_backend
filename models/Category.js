@@ -1,4 +1,14 @@
 const mongoose = require("mongoose");
+const Joi = require("joi");
+
+exports.validateCategory = function (category) {
+  const schema = Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().required().min(10),
+  });
+
+  return schema.validate(category);
+};
 
 const categorySchema = new mongoose.Schema(
   {
