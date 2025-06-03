@@ -7,7 +7,7 @@ router.get('/:id/followers', discussionController.getFollowersByDiscussionId)
 router.post('/', discussionController.createDiscussion)
 router.post('/:id/follow', discussionController.followDiscussion)
 router.delete('/:id/unfollow', discussionController.unfollowDiscussion)
-router.put('/:id/categories', discussionController.updateCategoriesByDiscussionId)
+router.put('/:id/categories', discussionController.updateDiscussion)
 router.delete('/:id', discussionController.deleteDiscussion)
 
 module.exports = router;

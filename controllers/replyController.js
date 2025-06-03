@@ -1,3 +1,4 @@
+const { Discussion } = require("../models/Discussion");
 const { validateReply, Reply } = require("../models/Reply");
 
 exports.getReplyById = async (req, res) => {
@@ -15,6 +16,9 @@ exports.createReply = async (req, res) => {
     owner: req.body.owner,
     discussion: req.body.discussion,
   });
+  const discussion = await Discussion.findById(req.body.discussion);
+  discussion.replies.push(reply._id);
+  await discussion.save();
   res.send(reply);
 };
 
