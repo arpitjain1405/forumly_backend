@@ -1,4 +1,21 @@
 const mongoose = require("mongoose");
+const Joi = require("joi");
+
+exports.validateDiscussion = function (discussion) {
+  const schema = Joi.object({
+    question: Joi.object({
+      title: Joi.string().required().min(3),
+      content: Joi.string().required().min(20),
+    }),
+    categories: [
+      Joi.object({
+        title: Joi.string().required(),
+        discription: Joi.string().min(10),
+      }).required(),
+    ],
+  });
+  return schema.validate(discussion);
+};
 
 const discussionSchema = new mongoose.Schema(
   {
@@ -31,4 +48,3 @@ const discussionSchema = new mongoose.Schema(
 );
 
 exports.Discussion = mongoose.model("Discussion", discussionSchema);
-
