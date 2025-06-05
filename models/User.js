@@ -36,6 +36,10 @@ const userSchema = mongoose.Schema({
         required: true,
         minLength: 6,
         maxLength: 1024
+    },
+    isAdmin: {
+        type: Boolean,
+        required: true
     }
 })
 

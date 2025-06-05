@@ -15,6 +15,7 @@ exports.userRegister = async (req, res) => {
     name,
     email,
     password,
+    isAdmin: false
   });
 
   user.password = await bcrypt.hash(password, 10);
@@ -32,6 +33,7 @@ exports.login = async (req, res) => {
 
   const validPassword = await bcrypt.compare(password, user.password);
   if(!validPassword) return res.status(401).send("Invalid crendentials");
-  const token = jwt.sign({ _id: user._id }, "jwtPrivateKey");
+
+  const token = jwt.sign({ _id: user._id, isAdmin: user.isAdmin }, "jwtPrivateKey");
   res.header('x-auth-token', token).send(token);
 };

@@ -20,7 +20,7 @@ exports.getFollowersByDiscussionId = async (req, res) => {
   const followers = await Discussion.findById(req.params.id)
     .populate({
       path: "followers",
-      select: "-password"
+      select: "-password",
     })
     .select("followers");
   if (!followers) return res.status(404).send("Sorry no followers");
@@ -36,10 +36,12 @@ exports.createDiscussion = async (req, res) => {
 
   for (let cat of categories) {
     const categoryTitle = cat.title.trim().toLowerCase();
-    let existing = await Category.findOne({ title: new RegExp(`^${categoryTitle}$`, 'i') });
+    let existing = await Category.findOne({
+      title: new RegExp(`^${categoryTitle}$`, "i"),
+    });
     if (existing) {
       uniqueCategoryIds.add(existing._id.toString());
-    } else {  
+    } else {
       if (!cat.discription) {
         res
           .status(400)
@@ -60,6 +62,7 @@ exports.createDiscussion = async (req, res) => {
   const newDiscussion = await Discussion.create({
     question: newQuestion._id,
     categories: Array.from(uniqueCategoryIds),
+    owner: req.user._id,
   });
   res.send(newDiscussion);
 };
@@ -104,16 +107,19 @@ exports.updateDiscussion = async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const { question, categories } = req.body;
-  const categoryIds = [];
+  const uniqueCategoryIds = new Set();
 
   for (let cat of categories) {
     const categoryTitle = cat.title.trim().toLowerCase();
-    let existing = await Category.findOne({ title: new RegExp(`^${categoryTitle}$`, 'i') });
+    let existing = await Category.findOne({
+      title: new RegExp(`^${categoryTitle}$`, "i"),
+    });
+
     if (existing) {
-      categoryIds.push(existing._id);
+      uniqueCategoryIds.add(existing._id.toString());
     } else {
       if (!cat.discription)
-         res
+        res
           .status(400)
           .json({ error: `Missing description for category ${cat.title}` });
 
@@ -121,9 +127,10 @@ exports.updateDiscussion = async (req, res) => {
         title: categoryTitle,
         discription: cat.discription,
       });
-      categoryIds.push(newCat._id);
+      uniqueCategoryIds.add(newCat._id.toString());
     }
   }
+
   await Question.findByIdAndUpdate(
     discussion.question._id,
     {
@@ -137,7 +144,7 @@ exports.updateDiscussion = async (req, res) => {
   const updatedDiscussion = await Discussion.findByIdAndUpdate(
     req.params.id,
     {
-      categories: categoryIds,
+      categories: Array.from(uniqueCategoryIds),
     },
     {
       new: true,
@@ -153,4 +160,3 @@ exports.deleteDiscussion = async (req, res) => {
   discussion = await Discussion.findByIdAndDelete(req.params.id);
   res.send(discussion);
 };
-

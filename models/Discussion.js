@@ -43,6 +43,11 @@ const discussionSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    }
   },
   {
     timestamps: true,
