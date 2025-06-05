@@ -1,7 +1,7 @@
 const { validateCategory, Category } = require("../models/Category");
 const { Discussion } = require("../models/Discussion");
 
-exports.getAllCategory = async (req, res) => {
+exports.getAllCategories = async (req, res) => {
   const categories = await Category.find();
   if (!categories) return res.status(404).send("No Category exist");
   res.send(categories);
@@ -26,10 +26,13 @@ exports.createCategory = async (req, res) => {
   const { error } = validateCategory(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const category = await Reply.create({
-    title: req.body.title,
-    description: req.body.discription,
-    discussion: [],
+  const title = req.body.title.trim().toLowerCase();
+  const existing = await Category.findOne({ title: new RegExp(`^${title}$`, "i") });
+  if(existing) return res.status(400).send("Category already exist"); 
+
+  const category = await Category.create({
+    title: title,
+    discription: req.body.discription,
   });
   res.send(category);
 };
@@ -37,20 +40,24 @@ exports.createCategory = async (req, res) => {
 //Admins only
 exports.updateCategory = async (req, res) => {
   let category = await Category.findById(req.params.id);
-  if (!category) return res.status(404).send("No reply exist");
+  if (!category) return res.status(404).send("No category exist");
 
   const { error } = validateCategory(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  category = await Reply.findByIdAndUpdate(
+  const title = req.body.title.trim().toLowerCase();
+  const existing = await Category.findOne({ title: new RegExp(`^${title}$`, "i") });
+  if(existing) return res.status(400).send("Category title already exist."); 
+
+  category = await Category.findByIdAndUpdate(
     req.params.id,
     {
-      title: req.body.title,
+      title: title,
       discription: req.body.discription,
     },
     { new: true }
   );
-  res.send(reply);
+  res.send(category);
 };
 
 //Admins only
@@ -58,6 +65,6 @@ exports.deleteCategory = async (req, res) => {
   let category = await Category.findById(req.params.id);
   if (!category) return res.status(404).send("No reply exist");
 
-  category = await Reply.findByIdAndDelete(req.params.id);
+  category = await Category.findByIdAndDelete(req.params.id);
   res.send(category);
 };

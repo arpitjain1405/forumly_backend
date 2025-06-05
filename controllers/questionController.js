@@ -30,7 +30,7 @@ exports.createQuestion = async (req, res) => {
   const question = await Question.create({
     title: req.body.title,
     content: req.body.content,
-    owner: req.body.owner,
+    owner: req.user._id,
   });
 
   res.send(question);

@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 exports.validateReply = function (reply) {
-  const ownerId = () => {
-    return Joi.string().required().hex().length(24).message("Invalid ownerId");
-  };
   const discussionId = () => {
     return Joi.string()
       .required()
@@ -14,8 +11,7 @@ exports.validateReply = function (reply) {
   };
 
   const schema = Joi.object({
-    content: Joi.string().required(),
-    owner: ownerId().required(),
+    content: Joi.string().required().min(1).trim(),
     discussion: discussionId().required(),
   });
 

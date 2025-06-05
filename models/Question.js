@@ -2,14 +2,11 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 exports.validateQuestion = function (question) {
-  const objectId = () => {
-    return Joi.string().length(24).hex().message("Invalid ObjectId");
-  };
+  
 
   const schema = Joi.object({
-    title: Joi.string().required().min(3),
-    content: Joi.string().required().min(20),
-    owner: objectId().required(),
+    title: Joi.string().required().min(3).trim(),
+    content: Joi.string().required().min(20).trim(),
   });
 
   return schema.validate(question);

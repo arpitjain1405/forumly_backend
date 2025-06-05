@@ -13,7 +13,7 @@ exports.createReply = async (req, res) => {
 
   const reply = await Reply.create({
     content: req.body.content,
-    owner: req.body.owner,
+    owner: req.user._id,
     discussion: req.body.discussion,
   });
   const discussion = await Discussion.findById(req.body.discussion);

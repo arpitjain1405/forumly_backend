@@ -1,24 +1,27 @@
-const Category = require("../models/Category");
+const { Category } = require("../models/Category");
 const { validateDiscussion, Discussion } = require("../models/Discussion");
 const { Question } = require("../models/Question");
 
 exports.getAllDiscussions = async (req, res) => {
-  const discussions = Discussion.find();
+  const discussions = await Discussion.find();
   if (!discussions) return res.status(404).send("No discussion exist");
   res.send(discussions);
 };
 
 exports.getDiscussionById = async (req, res) => {
-  const discussion = Discussion.findById(req.params.id);
+  const discussion = await Discussion.findById(req.params.id);
   if (!discussion) return res.status(404).send("No discussion exist");
   res.send(discussion);
 };
 
 exports.getFollowersByDiscussionId = async (req, res) => {
-  const discussion = Discussion.findById(req.params.id);
+  const discussion = await Discussion.findById(req.params.id);
   if (!discussion) return res.status(404).send("No discussion exist");
-  const followers = Discussion.findById(req.params.id)
-    .populate("followers")
+  const followers = await Discussion.findById(req.params.id)
+    .populate({
+      path: "followers",
+      select: "-password"
+    })
     .select("followers");
   if (!followers) return res.status(404).send("Sorry no followers");
   res.send(followers);
@@ -28,34 +31,35 @@ exports.createDiscussion = async (req, res) => {
   const { error } = validateDiscussion(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { question, categories, user } = req.body;
-  const categoryIds = [];
+  const { question, categories } = req.body;
+  const uniqueCategoryIds = new Set();
 
-  for (const cat of categories) {
-    let existing = await Discussion.findOne({ title: cat.title });
+  for (let cat of categories) {
+    const categoryTitle = cat.title.trim().toLowerCase();
+    let existing = await Category.findOne({ title: new RegExp(`^${categoryTitle}$`, 'i') });
     if (existing) {
-      categoryIds.push(existing._id);
-    } else {
-      if (!cat.discription)
-        return res
+      uniqueCategoryIds.add(existing._id.toString());
+    } else {  
+      if (!cat.discription) {
+        res
           .status(400)
           .json({ error: `Missing description for category ${cat.title}` });
-
+      }
       let newCat = await Category.create({
-        title: cat.title,
+        title: categoryTitle,
         discription: cat.discription,
       });
-      categoryIds.push(newCat._id);
+      uniqueCategoryIds.add(newCat._id.toString());
     }
   }
   const newQuestion = await Question.create({
     title: question.title,
     content: question.content,
-    owner: user._id,
+    owner: req.user._id,
   });
   const newDiscussion = await Discussion.create({
     question: newQuestion._id,
-    categories: categoryIds,
+    categories: Array.from(uniqueCategoryIds),
   });
   res.send(newDiscussion);
 };
@@ -99,21 +103,22 @@ exports.updateDiscussion = async (req, res) => {
   const { error } = validateDiscussion(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const { question, categories, user } = req.body;
+  const { question, categories } = req.body;
   const categoryIds = [];
 
-  for (const cat of categories) {
-    let existing = await Discussion.findOne({ title: cat.title });
+  for (let cat of categories) {
+    const categoryTitle = cat.title.trim().toLowerCase();
+    let existing = await Category.findOne({ title: new RegExp(`^${categoryTitle}$`, 'i') });
     if (existing) {
       categoryIds.push(existing._id);
     } else {
       if (!cat.discription)
-        return res
+         res
           .status(400)
           .json({ error: `Missing description for category ${cat.title}` });
 
       let newCat = await Category.create({
-        title: cat.title,
+        title: categoryTitle,
         discription: cat.discription,
       });
       categoryIds.push(newCat._id);
@@ -148,3 +153,4 @@ exports.deleteDiscussion = async (req, res) => {
   discussion = await Discussion.findByIdAndDelete(req.params.id);
   res.send(discussion);
 };
+
