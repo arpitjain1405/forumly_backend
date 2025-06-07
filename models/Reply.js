@@ -2,17 +2,9 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 exports.validateReply = function (reply) {
-  const discussionId = () => {
-    return Joi.string()
-      .required()
-      .hex()
-      .length(24)
-      .message("Invalid discussionId");
-  };
-
   const schema = Joi.object({
     content: Joi.string().required().min(1).trim(),
-    discussion: discussionId().required(),
+    parentReplyId: Joi.string().hex().length(24).message("Invalid Id")
   });
 
   return schema.validate(reply);
@@ -39,6 +31,11 @@ const replySchema = new mongoose.Schema(
       ref: "Discussion",
       required: true,
     },
+    parentReply: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Reply",
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -46,4 +43,3 @@ const replySchema = new mongoose.Schema(
 );
 
 exports.Reply = mongoose.model("Reply", replySchema);
-
