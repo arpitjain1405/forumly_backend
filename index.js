@@ -5,6 +5,7 @@ const replyRoutes = require('./routes/replyRoutes')
 const categoryRoutes = require('./routes/categoryRoutes')
 const discussionRoutes = require('./routes/discussionRoutes')
 const authRoutes = require('./routes/authRoutes')
+const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const app = express();
 
 
@@ -14,6 +15,7 @@ app.use('/api/replies', replyRoutes)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/discussions', discussionRoutes)
 app.use('/api/auths', authRoutes)
+app.use('/api/bookmarks', bookmarkRoutes)
 
 mongoose
   .connect("mongodb://localhost/forumly")
