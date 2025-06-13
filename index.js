@@ -1,3 +1,4 @@
+const dotenv = require("dotenv")
 const express = require("express");
 const mongoose = require("mongoose");
 const questionRoutes = require('./routes/questionRoutes')
@@ -6,8 +7,10 @@ const categoryRoutes = require('./routes/categoryRoutes')
 const discussionRoutes = require('./routes/discussionRoutes')
 const authRoutes = require('./routes/authRoutes')
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
-const app = express();
 
+dotenv.config()
+
+const app = express();
 
 app.use(express.json());
 app.use('/api/questions', questionRoutes)
@@ -17,9 +20,12 @@ app.use('/api/discussions', discussionRoutes)
 app.use('/api/auths', authRoutes)
 app.use('/api/bookmarks', bookmarkRoutes)
 
+const db_url = process.env.DB_URL
+
 mongoose
-  .connect("mongodb://localhost/forumly")
-  .then(() => console.log("Connecting to database..."))
+  .connect(db_url)
+  .then(() => console.log("Connected to database..."))
   .catch((err) => console.error("Could not connect to mongodb", err));
 
-app.listen(3000, console.log("Listening to PORT 3000"));
+const PORT = process.env.PORT ?? 3000
+app.listen(PORT, console.log(`Listening to port: ${PORT}...`));
