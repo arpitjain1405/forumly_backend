@@ -1,4 +1,4 @@
-const { User, validateUser, validateLogin } = require("../models/User");
+const { User, validateUser, validateLogin } = require("../models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
@@ -20,7 +20,7 @@ exports.userRegister = async (req, res) => {
 
   user.password = await bcrypt.hash(password, 10);
   await user.save();
-  res.send({ name, email });
+  res.status(201).send({ name, email });
 };
 
 exports.login = async (req, res) => {
@@ -29,7 +29,7 @@ exports.login = async (req, res) => {
 
   const { email, password } = req.body;
   const user = await User.findOne({ email })
-  if(!user) return res.status(401).send("Invalid credentials");
+  if(!user) return res.status(401).send("Invalid credentials.");
 
   const validPassword = await bcrypt.compare(password, user.password);
   if(!validPassword) return res.status(401).send("Invalid crendentials");

@@ -1,4 +1,4 @@
-const { Question, validateQuestion } = require("../models/Question");
+const { Question, validateQuestion } = require("../models/Question.js");
 
 exports.getAllQuestions = async (req, res) => {
   const { sort, order } = req.query;
@@ -33,7 +33,7 @@ exports.createQuestion = async (req, res) => {
     owner: req.user._id,
   });
 
-  res.send(question);
+  res.status(201).send(question);
 };
 
 exports.updateQuestion = async (req, res) => {
@@ -57,23 +57,6 @@ exports.deleteQuestion = async (req, res) => {
   res.send(question);
 };
 
-exports.increaseQuestionViews = async (req, res) => {
-  let question = await Question.findById(req.params.id);
-  if (!question) return res.status(404).send("No question exist");
-
-  question = await Question.findByIdAndUpdate(
-    req.params.id,
-    {
-      $inc: { views: 1 },
-    },
-    {
-      timestamps: false,
-      new: true
-    }
-  );
-  res.send(question);
-};
-
 exports.increaseQuestionLikes = async (req, res) => {
   let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
@@ -81,13 +64,16 @@ exports.increaseQuestionLikes = async (req, res) => {
   question = await Question.findByIdAndUpdate(
     req.params.id,
     {
-      $inc: { likes: 1 },
+      $addToSet: { likedBy: req.user._id },
     },
     {
       timestamps: false,
       new: true,
     }
   );
+
+  question.likes = question.likedBy.length;
+  question = await question.save();
   res.send(question);
 };
 
@@ -95,20 +81,18 @@ exports.decreaseQuestionLikes = async (req, res) => {
   let question = await Question.findById(req.params.id);
   if (!question) return res.status(404).send("No question exist");
 
-  if (parseInt(question.likes) > 0) {
-    question = await Question.findByIdAndUpdate(
-      req.params.id,
-      {
-        $inc: { likes: -1 },
-      },
-      {
-        timestamps: false,
-        new: true,
-      }
-    );
-    res.send(question);
-  }
-  return res
-    .status(200)
-    .json({ message: "Already at 0 likes. Cannot dislike further." });
+  question = await Question.findByIdAndUpdate(
+    req.params.id,
+    {
+      $pull: { likedBy: req.user._id },
+    },
+    {
+      timestamps: false,
+      new: true,
+    }
+  );
+
+  question.likes = question.likedBy.length;
+  question = await question.save();
+  res.send(question);
 };

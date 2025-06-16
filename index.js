@@ -1,11 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const questionRoutes = require('./routes/questionRoutes')
-const replyRoutes = require('./routes/replyRoutes')
-const categoryRoutes = require('./routes/categoryRoutes')
-const discussionRoutes = require('./routes/discussionRoutes')
-const authRoutes = require('./routes/authRoutes')
-const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const questionRoutes = require('./routes/questionRoutes.js')
+const replyRoutes = require('./routes/replyRoutes.js')
+const categoryRoutes = require('./routes/categoryRoutes.js')
+const discussionRoutes = require('./routes/discussionRoutes.js')
+const authRoutes = require('./routes/authRoutes.js')
+const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
 const app = express();
 
 

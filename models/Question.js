@@ -27,12 +27,11 @@ const questionSchema = new mongoose.Schema(
     likes: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
-    views: {
-      type: Number,
-      default: 0,
-      min: 0,
+    likedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
