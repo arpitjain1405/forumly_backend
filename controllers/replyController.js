@@ -1,5 +1,5 @@
-const { Discussion } = require("../models/Discussion");
-const { validateReply, Reply } = require("../models/Reply");
+const { Discussion } = require("../models/Discussion.js");
+const { validateReply, Reply } = require("../models/Reply.js");
 
 exports.getAllReplies = async (req, res) => {
   const discussionId = req.params.discussionId;
@@ -63,9 +63,10 @@ exports.createReply = async (req, res) => {
   });
 
   discussion.replies.push(reply._id);
+  discussion.replyCount += 1;
   await discussion.save();
 
-  res.send(reply);
+  res.status(201).send(reply);
 };
 
 exports.updateReply = async (req, res) => {
@@ -97,6 +98,7 @@ exports.deleteReply = async (req, res) => {
     return res.status(400).send("Reply doesn't belong to the discussion");
 
   discussion.replies = discussion.replies.filter((id) => !id.equals(reply._id));
+  discussion.replyCount -= 1;
   await discussion.save();
 
   reply = await Reply.findByIdAndDelete(req.params.id);
@@ -110,13 +112,16 @@ exports.increaseReplyLikes = async (req, res) => {
   reply = await Reply.findByIdAndUpdate(
     req.params.id,
     {
-      $inc: { likes: 1 },
+      $addToSet: { likedBy: req.user._id },
     },
     {
       new: true,
       timestamps: false,
     }
   );
+
+  reply.likes = reply.likedBy.length;
+  reply = await reply.save();
   res.send(reply);
 };
 
@@ -124,20 +129,18 @@ exports.decreaseReplyLikes = async (req, res) => {
   let reply = await Reply.findById(req.params.id);
   if (!reply) return res.status(404).send("No reply exist");
 
-  if (reply.likes > 0) {
-    reply = await Reply.findByIdAndUpdate(
-      req.params.id,
-      {
-        $inc: { likes: -1 },
-      },
-      {
-        new: true,
-        timestamps: false,
-      }
-    );
-    res.send(reply);
-  }
-  return res
-    .status(200)
-    .json({ message: "Already at 0 likes. Cannot dislike further." });
+  reply = await Reply.findByIdAndUpdate(
+    req.params.id,
+    {
+      $addToSet: { likedBy: req.user._id },
+    },
+    {
+      new: true,
+      timestamps: false,
+    }
+  );
+
+  reply.likes = reply.likedBy.length;
+  reply = await reply.save();
+  res.send(reply);
 };

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const categoryController = require("../controllers/categoryController");
-const auth = require('../middleware/auth');
-const isOwnerOrAdmin = require('../middleware/isOwnerOrAdmin');
+const categoryController = require("../controllers/categoryController.js");
+const auth = require('../middleware/auth.js');
+const isOwnerOrAdmin = require('../middleware/isOwnerOrAdmin.js');
 
 router.get("/", categoryController.getAllCategories);
 router.get("/:id", categoryController.getCategoryById);

@@ -7,12 +7,14 @@ exports.validateDiscussion = function (discussion) {
       title: Joi.string().required().min(3).trim(),
       content: Joi.string().required().min(20).trim(),
     }).required(),
-    categories: Joi.array().items(
-      Joi.object({
-        title: Joi.string().required().trim(),
-        discription: Joi.string().min(10).trim(),
-      }).required()
-    ).required(),
+    categories: Joi.array()
+      .items(
+        Joi.object({
+          title: Joi.string().required().trim(),
+          description: Joi.string().min(10).trim(),
+        }).required()
+      )
+      .required(),
   });
   return schema.validate(discussion);
 };
@@ -23,6 +25,11 @@ const discussionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Question",
       required: true,
+    },
+    replyCount: {
+      type: Number,
+      default: 0,
+      min: 0
     },
     replies: [
       {
@@ -37,6 +44,28 @@ const discussionSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    likes: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    likedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    views: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    viewedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,8 +75,8 @@ const discussionSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
-    }
+      required: true,
+    },
   },
   {
     timestamps: true,

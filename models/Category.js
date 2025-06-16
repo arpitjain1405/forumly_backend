@@ -4,7 +4,7 @@ const Joi = require("joi");
 exports.validateCategory = function (category) {
   const schema = Joi.object({
     title: Joi.string().required().trim().min(1),
-    discription: Joi.string().required().min(10).trim(),
+    description: Joi.string().required().min(10).trim(),
   });
 
   return schema.validate(category);
@@ -17,7 +17,7 @@ const categorySchema = new mongoose.Schema(
       required: true,
       unique: true
     },
-    discription: {
+    description: {
       type: String,
       required: true,
       minLength: 10,

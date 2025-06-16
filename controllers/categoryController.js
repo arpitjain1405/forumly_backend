@@ -1,5 +1,5 @@
-const { validateCategory, Category } = require("../models/Category");
-const { Discussion } = require("../models/Discussion");
+const { validateCategory, Category } = require("../models/Category.js");
+const { Discussion } = require("../models/Discussion.js");
 
 exports.getAllCategories = async (req, res) => {
   const categories = await Category.find();
@@ -32,9 +32,9 @@ exports.createCategory = async (req, res) => {
 
   const category = await Category.create({
     title: title,
-    discription: req.body.discription,
+    description: req.body.description,
   });
-  res.send(category);
+  res.status(201).send(category);
 };
 
 //Admins only
@@ -53,7 +53,7 @@ exports.updateCategory = async (req, res) => {
     req.params.id,
     {
       title: title,
-      discription: req.body.discription,
+      description: req.body.description,
     },
     { new: true }
   );
